@@ -9,38 +9,28 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+
         <Grid Grid.Row="0">
             <Grid.RowDefinitions>
+                <RowDefinition Height="0" />
                 <RowDefinition Height="30" />
-                <RowDefinition Height="30" />
-                <RowDefinition Height="30" />
-                <RowDefinition Height="30" />
-                <RowDefinition Height="30" />
-                <RowDefinition Height="30" />
-                <RowDefinition Height="30" />
-                <RowDefinition Height="30" />
-                <RowDefinition Height="30" />
-                <RowDefinition Height="30" />
-                <RowDefinition Height="30" />
+                <RowDefinition Height="25" />
+                <RowDefinition Height="25" />
+                <RowDefinition Height="25" />
+                <RowDefinition Height="25" />
+                <RowDefinition Height="25" />
+                <RowDefinition Height="25" />
+                <RowDefinition Height="25" />
+                <RowDefinition Height="25" />
+                <RowDefinition Height="25" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="200"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Button
-                Grid.Row="0"
-                Grid.Column="0"
-                Content="生成"
-                Command="{Binding cmdGenerate}"/>
-            <CheckBox
-                Grid.Row="0"
-                Grid.Column="1"
-                Margin="5"
-                HorizontalAlignment="Left"
-                Content="是否生成list"
-                IsChecked="{Binding isList}"/>
             <Label
                 Grid.Row="1"
                 Grid.Column="0"
@@ -55,7 +45,7 @@
                 Grid.Row="1"
                 Grid.Column="1"
                 HorizontalAlignment="Center"
-                Content="连接字段（左表和右表用‘；’区分，多个字段用‘，’区分，字段一致可省略分号）"/>
+                Content="连接字段（左表和右表用'；'区分，多个字段用'，'区分，字段一致可省略分号）"/>
             <TextBox
                 Grid.Row="2"
                 Grid.Column="0"
@@ -165,14 +155,51 @@
                 Text="{Binding CONNECTION_9}"
                 />
         </Grid>
+        
         <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="25" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <Button
+                Grid.Row="0"
+                Grid.Column="2"
+                Margin="1"             
+                Width="100"
+                HorizontalAlignment="Right"
+                Content="生成"
+                Command="{Binding cmdGenerate}"/>
+            <CheckBox
+                Grid.Row="0"
+                Grid.Column="0"
+                Margin="5"
+                HorizontalAlignment="Left"
+                Content="生成list"
+                IsChecked="{Binding isList}"/>
+            <CheckBox
+                Grid.Row="0"
+                Grid.Column="1"
+                Margin="5"
+                HorizontalAlignment="Left"
+                Content="分页"
+                IsChecked="{Binding isPaging}"/>
+        </Grid>
+        
+        <Grid Grid.Row="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
+            
             <TextBox
                 Margin="1"
                 Grid.Row="0"
                 Text="{Binding cmdData}"/>
         </Grid>
+        
     </Grid>
 </Window>

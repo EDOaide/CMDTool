@@ -272,6 +272,19 @@ namespace CMDTool
                 }
             }
         }
+        private bool _isPaging;
+        public bool isPaging
+        {
+            get { return _isPaging; }
+            set
+            {
+                if (_isPaging != value)
+                {
+                    _isPaging = value;
+                    NotifyPropertyChanged("isPaging");
+                }
+            }
+        }
         private string _cmdData;
         public string cmdData
         {
@@ -311,6 +324,7 @@ namespace CMDTool
 
         private void onExecuteMethod(object parameter)
         {
+            #region 拼接字符串成List
             List<CmdModel> cmdList = new List<CmdModel>();
             StringBuilder cmddata = new StringBuilder("var ctx = ODAContext.NoTransContext;\n");
             for (int i = 1; i <= 9; i++)
@@ -372,7 +386,9 @@ namespace CMDTool
                     }
                     else
                     {
-                        MessageBox.Show(string.Format("请输入正确的表格格式，错误数据为：{0}。", c));
+                        cL = c;
+                        cU = c;
+                        //MessageBox.Show(string.Format("请输入正确的表格格式，错误数据为：{0}。", c));
                     }
 
                     #region 填充cmdList
@@ -396,6 +412,7 @@ namespace CMDTool
             }
 
             cmddata.AppendLine();
+            #endregion
 
             #region 拼接oda语句
             List<string> cLeft = new List<string>();
@@ -407,6 +424,11 @@ namespace CMDTool
 
                 if (i == 0)
                 {
+                    if (isPaging)
+                    {
+                        cmddata.Append("int totalRecord = 0;");
+                        cmddata.AppendLine();
+                    }
                     cmddata.Append("var data = ");
                     cmddata.Append(cmdList[i].column);
                     cmddata.AppendLine();
@@ -437,6 +459,9 @@ namespace CMDTool
                     }
                     #endregion
                     cmddata.Append(".LeftJoin(");
+                    cmddata.Append(column);
+                    cmddata.Append(",");
+                    cmddata.AppendLine();
                     for (int j = 0 ;j < cLeft.Count; j++)
                     {
                         if (cLeft[j].Contains("_"))
@@ -449,6 +474,7 @@ namespace CMDTool
                             cRight[j] = ConvertString.UnderLine(cRight[j]);
                             cRight[j] = cRight[j].Insert(0, "Col");
                         }
+                        cmddata.Append("\t");
                         cmddata.Append(column);
                         cmddata.Append(".");
                         cmddata.Append(cRight[j]);
@@ -461,14 +487,17 @@ namespace CMDTool
                     }
 
                     #region 填写orgid,enterpriseId,state
+                    cmddata.Append("\t");
                     cmddata.Append(column);
                     cmddata.Append(".ColOrgId == OrgId,");
                     cmddata.AppendLine();
+                    cmddata.Append("\t");
                     cmddata.Append(column);
                     cmddata.Append(".ColEnterpriseId == EnterpriseId,");
                     cmddata.AppendLine();
+                    cmddata.Append("\t");
                     cmddata.Append(column);
-                    cmddata.Append(".State == \"A\")");
+                    cmddata.Append(".ColState == \"A\")");
                     cmddata.AppendLine();
                     #endregion
                 }
@@ -484,6 +513,7 @@ namespace CMDTool
                 {
                     if (mainConnection[k].Contains("Col"))
                     {
+                        cmddata.Append("\t");
                         cmddata.Append(COLUMN_1);
                         cmddata.Append(".");
                         cmddata.Append(mainConnection[k]);
@@ -492,23 +522,26 @@ namespace CMDTool
                         cmddata.Append(",");
                         cmddata.AppendLine();
                     }
-                    else if (mainConnection[k].Contains("_"))
+                    //else if (mainConnection[k].Contains("_"))
+                    //{
+                    //    string connection = ConvertString.UnderLine(mainConnection[k]);
+
+                    //    cmddata.Append(COLUMN_1);
+                    //    cmddata.Append(".");
+                    //    cmddata.Append(connection.Insert(0, "Col"));
+                    //    cmddata.Append(" == ");
+                    //    cmddata.Append(connection);
+                    //    cmddata.Append(",");
+                    //    cmddata.AppendLine();
+                    //}
+                    else
                     {
                         string connection = ConvertString.UnderLine(mainConnection[k]);
 
+                        cmddata.Append("\t");
                         cmddata.Append(COLUMN_1);
                         cmddata.Append(".");
-                        cmddata.Append(connection.Insert(0, "Col"));
-                        cmddata.Append(" == ");
-                        cmddata.Append(connection);
-                        cmddata.Append(",");
-                        cmddata.AppendLine();
-                    }
-                    else
-                    {
-                        cmddata.Append(COLUMN_1);
-                        cmddata.Append(".");
-                        cmddata.Append(mainConnection[k].Insert(0,"Col"));
+                        cmddata.Append(connection.Insert(0,"Col"));
                         cmddata.Append(" == ");
                         cmddata.Append(mainConnection[k]);
                         cmddata.Append(",");
@@ -517,26 +550,58 @@ namespace CMDTool
                 }
             }
             #region 填写orgid,enterpriseId,state
+            cmddata.Append("\t");
             cmddata.Append(COLUMN_1);
             cmddata.Append(".ColOrgId == OrgId,");
             cmddata.AppendLine();
+            cmddata.Append("\t");
             cmddata.Append(COLUMN_1);
             cmddata.Append(".ColEnterpriseId == EnterpriseId,");
             cmddata.AppendLine();
+            cmddata.Append("\t");
             cmddata.Append(COLUMN_1);
-            cmddata.Append(".State == \"A\")");
+            cmddata.Append(".ColState == \"A\")");
             cmddata.AppendLine();
             #endregion
             #endregion
 
-            if (isList)
+            #region 是否生成List，是否分页
+            if (isList && isPaging)
+            {
+                cmddata.Append(".SelectM(start, length, out totalRecord);");
+                cmddata.AppendLine();
+                cmddata.Append("retrun new");
+                cmddata.AppendLine();
+                cmddata.Append("{");
+                cmddata.AppendLine();
+                cmddata.Append("\t");
+                cmddata.Append("totalRecord");
+                cmddata.AppendLine();
+                cmddata.Append("\t");
+                cmddata.Append("data");
+                cmddata.AppendLine();
+                cmddata.Append("}");
+            }
+            else if(isList && !isPaging)
             {
                 cmddata.Append(".SelectM();");
+                cmddata.AppendLine();
+                cmddata.AppendLine();
+                cmddata.Append("retrun data;");
+            }
+            else if (!isList && isPaging)
+            {
+                cmddata.Append(".Select(start, length, out totalRecord);");
+                cmddata.AppendLine();
+                cmddata.Append("retrun data;");
             }
             else
             {
                 cmddata.Append(".Select();");
+                cmddata.AppendLine();
+                cmddata.Append("return data;");
             }
+            #endregion
 
             cmdData = cmddata.ToString();
         }
