@@ -1,0 +1,15 @@
+D:\studyitems\CMDTool\CMDTool\bin\Debug\CMDTool.exe.config
+D:\studyitems\CMDTool\CMDTool\bin\Debug\CMDTool.exe
+D:\studyitems\CMDTool\CMDTool\bin\Debug\CMDTool.pdb
+D:\studyitems\CMDTool\CMDTool\obj\Debug\CMDTool.csprojAssemblyReference.cache
+D:\studyitems\CMDTool\CMDTool\obj\Debug\MainWindow.g.cs
+D:\studyitems\CMDTool\CMDTool\obj\Debug\App.g.cs
+D:\studyitems\CMDTool\CMDTool\obj\Debug\CMDTool_MarkupCompile.cache
+D:\studyitems\CMDTool\CMDTool\obj\Debug\CMDTool_MarkupCompile.lref
+D:\studyitems\CMDTool\CMDTool\obj\Debug\MainWindow.baml
+D:\studyitems\CMDTool\CMDTool\obj\Debug\CMDTool.g.resources
+D:\studyitems\CMDTool\CMDTool\obj\Debug\CMDTool.Properties.Resources.resources
+D:\studyitems\CMDTool\CMDTool\obj\Debug\CMDTool.csproj.GenerateResource.cache
+D:\studyitems\CMDTool\CMDTool\obj\Debug\CMDTool.csproj.CoreCompileInputs.cache
+D:\studyitems\CMDTool\CMDTool\obj\Debug\CMDTool.exe
+D:\studyitems\CMDTool\CMDTool\obj\Debug\CMDTool.pdb
