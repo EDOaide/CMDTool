@@ -334,7 +334,7 @@ namespace CMDTool
                         {
                             if (j == 0)
                             {
-                                columnBuilder.Append(cList[j].ToString());
+                                columnBuilder.Append(cList[j].ToString().ToUpper());
                                 upperFlag = false;
                             }
                             else if (cList[j].Equals('_'))
@@ -343,7 +343,7 @@ namespace CMDTool
                             }
                             else if (upperFlag)
                             {
-                                columnBuilder.Append(cList[j].ToString());
+                                columnBuilder.Append(cList[j].ToString().ToUpper());
                                 upperFlag = false;
                             }
                             else
@@ -430,10 +430,25 @@ namespace CMDTool
                             return;
                         }
                     }
+                    else
+                    {
+                        cLeft = connection.Split(',').ToList();
+                        cRight = connection.Split(',').ToList();
+                    }
                     #endregion
                     cmddata.Append(".LeftJoin(");
                     for (int j = 0 ;j < cLeft.Count; j++)
                     {
+                        if (cLeft[j].Contains("_"))
+                        {
+                            cLeft[j] = ConvertString.UnderLine(cLeft[j]);
+                            cLeft[j] = cLeft[j].Insert(0, "Col");
+                        }
+                        if (cRight[j].Contains("_"))
+                        {
+                            cRight[j] = ConvertString.UnderLine(cRight[j]);
+                            cRight[j] = cRight[j].Insert(0, "Col");
+                        }
                         cmddata.Append(column);
                         cmddata.Append(".");
                         cmddata.Append(cRight[j]);
@@ -474,6 +489,18 @@ namespace CMDTool
                         cmddata.Append(mainConnection[k]);
                         cmddata.Append(" == ");
                         cmddata.Append(mainConnection[k].Remove(0, 3));
+                        cmddata.Append(",");
+                        cmddata.AppendLine();
+                    }
+                    else if (mainConnection[k].Contains("_"))
+                    {
+                        string connection = ConvertString.UnderLine(mainConnection[k]);
+
+                        cmddata.Append(COLUMN_1);
+                        cmddata.Append(".");
+                        cmddata.Append(connection.Insert(0, "Col"));
+                        cmddata.Append(" == ");
+                        cmddata.Append(connection);
                         cmddata.Append(",");
                         cmddata.AppendLine();
                     }

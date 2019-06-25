@@ -71,6 +71,7 @@
   <ItemGroup>
     <Compile Include="MainWindowViewModel.cs" />
     <Compile Include="Model\CmdModel.cs" />
+    <Compile Include="Model\ConvertString.cs" />
     <Compile Include="Model\SimpleCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
