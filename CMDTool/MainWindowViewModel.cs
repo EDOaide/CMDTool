@@ -298,6 +298,19 @@ namespace CMDTool
                 }
             }
         }
+        private string _connectionString;
+        public string connectionString
+        {
+            get { return _connectionString; }
+            set
+            {
+                if (_connectionString != value)
+                {
+                    _connectionString = value;
+                    NotifyPropertyChanged("connectionString");
+                }
+            }
+        }
         private string _cmdData;
         public string cmdData
         {
@@ -633,7 +646,7 @@ namespace CMDTool
                 List<Field> properties = new List<Field>();
                 for (int i = 0; i < cmdList.Count; i++)
                 {
-                    var fileds = DatabaseCommon.GetFileds("User Id=sa;Password=1;Database=MES_ALPHA;Server=localhost", ConvertString.ToUnderLine(cmdList[i].column));
+                    var fileds = DatabaseCommon.GetFileds(connectionString, ConvertString.ToUnderLine(cmdList[i].column));
                     properties.AddRange(fileds);
                 }
                 properties = properties.Distinct().ToList();
