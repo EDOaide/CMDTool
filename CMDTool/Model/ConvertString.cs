@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace CMDTool.Model
@@ -36,6 +37,34 @@ namespace CMDTool.Model
                     upperFlag = false;
                 }
             }
+
+            return returnParam.ToString();
+        }
+
+        public static string ToUnderLine(string param)
+        {
+            StringBuilder returnParam = new StringBuilder();
+            if (param.Contains("_"))
+            {
+                returnParam.Append(param.ToUpper());
+            }
+            else
+            {
+                var cList = param.Replace("cmd", "").Replace("Cmd", "").ToCharArray();
+                for (int j = 0; j < cList.Count(); j++)
+                {
+                    if (Regex.IsMatch(cList[j].ToString(), "[A-Z]") && j != 0)
+                    {
+                        returnParam.Append("_");
+                        returnParam.Append(cList[j].ToString().ToUpper());
+                    }
+                    else
+                    {
+                        returnParam.Append(cList[j].ToString().ToUpper());
+                    }
+                }
+            }
+
 
             return returnParam.ToString();
         }

@@ -285,6 +285,19 @@ namespace CMDTool
                 }
             }
         }
+        private bool _isConnection;
+        public bool isConnection
+        {
+            get { return _isConnection; }
+            set
+            {
+                if (_isConnection != value)
+                {
+                    _isConnection = value;
+                    NotifyPropertyChanged("isConnection");
+                }
+            }
+        }
         private string _cmdData;
         public string cmdData
         {
@@ -295,6 +308,19 @@ namespace CMDTool
                 {
                     _cmdData = value;
                     NotifyPropertyChanged("cmdData");
+                }
+            }
+        }
+        private string _modelData;
+        public string modelData
+        {
+            get { return _modelData; }
+            set
+            {
+                if (_modelData != value)
+                {
+                    _modelData = value;
+                    NotifyPropertyChanged("modelData");
                 }
             }
         }
@@ -414,11 +440,12 @@ namespace CMDTool
             cmddata.AppendLine();
             #endregion
 
-            #region 拼接oda语句
+            #region 表处理
             List<string> cLeft = new List<string>();
             List<string> cRight = new List<string>();
             for (int i = 0; i < cmdList.Count; i++)
             {
+                #region 拼接oda语句
                 string column = cmdList[i].column;
                 string connection = cmdList[i].connection;
 
@@ -438,8 +465,8 @@ namespace CMDTool
                     #region 生成连接字符
                     if (string.IsNullOrEmpty(connection))
                     {
-                        MessageBox.Show("无连接字符串。");
-                        return;
+                        //MessageBox.Show("无连接字符串。");
+                        continue;
                     }
                     else if (connection.Contains(";")) 
                     {
@@ -501,6 +528,7 @@ namespace CMDTool
                     cmddata.AppendLine();
                     #endregion
                 }
+                #endregion
             }
             #endregion
 
@@ -566,9 +594,18 @@ namespace CMDTool
             #endregion
 
             #region 是否生成List，是否分页
-            if (isList && isPaging)
+            if (isList)
             {
-                cmddata.Append(".SelectM(start, length, out totalRecord);");
+                cmddata.Append(".SelectM(") ;
+            }
+            else
+            {
+                cmddata.Append(".Select(");
+            }
+
+            if (isPaging)
+            {
+                cmddata.Append("start, length, out totalRecord);");
                 cmddata.AppendLine();
                 cmddata.Append("retrun new");
                 cmddata.AppendLine();
@@ -582,27 +619,96 @@ namespace CMDTool
                 cmddata.AppendLine();
                 cmddata.Append("}");
             }
-            else if(isList && !isPaging)
-            {
-                cmddata.Append(".SelectM();");
-                cmddata.AppendLine();
-                cmddata.AppendLine();
-                cmddata.Append("retrun data;");
-            }
-            else if (!isList && isPaging)
-            {
-                cmddata.Append(".Select(start, length, out totalRecord);");
-                cmddata.AppendLine();
-                cmddata.Append("retrun data;");
-            }
             else
             {
-                cmddata.Append(".Select();");
+                cmddata.Append(");");
                 cmddata.AppendLine();
-                cmddata.Append("return data;");
+                cmddata.AppendLine();
+                cmddata.Append("retrun data;");
             }
-            #endregion
 
+            if (isConnection)
+            {
+                StringBuilder connectionData = new StringBuilder();
+                List<Field> properties = new List<Field>();
+                for (int i = 0; i < cmdList.Count; i++)
+                {
+                    var fileds = DatabaseCommon.GetFileds("User Id=sa;Password=1;Database=MES_ALPHA;Server=localhost", ConvertString.ToUnderLine(cmdList[i].column));
+                    properties.AddRange(fileds);
+                }
+                properties = properties.Distinct().ToList();
+
+                connectionData.Append("public class ");
+                connectionData.Append(ConvertString.UnderLine(COLUMN_1).Replace("cmd", "").Replace("Cmd", ""));
+                connectionData.Append("MutiModel");
+                connectionData.AppendLine();
+                connectionData.Append("{");
+                connectionData.AppendLine();
+                for(int i = 0; i < properties.Count; i++)
+                {
+                    connectionData.Append("\t");
+                    connectionData.Append("public ");
+                    if (properties[i].Type=="char"|| properties[i].Type == "varchar")
+                    {
+                        connectionData.Append("string ");
+                    }
+                    else if(properties[i].Type == "datetime")
+                    {
+                        connectionData.Append("DateTime? ");
+                    }
+                    else
+                    {
+                        connectionData.Append(properties[i].Type);
+                        connectionData.Append(" ");
+                    }
+                    connectionData.Append(properties[i].Name);
+                    connectionData.Append(" { get; set; }");
+                    connectionData.AppendLine();
+                }
+                connectionData.Append("}");
+                modelData = connectionData.ToString();
+            }
+
+
+
+            //if (isList && isPaging)
+            //{
+            //    cmddata.Append(".SelectM(start, length, out totalRecord);");
+            //    cmddata.AppendLine();
+            //    cmddata.Append("retrun new");
+            //    cmddata.AppendLine();
+            //    cmddata.Append("{");
+            //    cmddata.AppendLine();
+            //    cmddata.Append("\t");
+            //    cmddata.Append("totalRecord");
+            //    cmddata.AppendLine();
+            //    cmddata.Append("\t");
+            //    cmddata.Append("data");
+            //    cmddata.AppendLine();
+            //    cmddata.Append("}");
+            //}
+            //else if(isList && !isPaging)
+            //{
+            //    cmddata.Append(".SelectM();");
+            //    cmddata.AppendLine();
+            //    cmddata.AppendLine();
+            //    cmddata.Append("retrun data;");
+            //}
+            //else if (!isList && isPaging)
+            //{
+            //    cmddata.Append(".Select(start, length, out totalRecord);");
+            //    cmddata.AppendLine();
+            //    cmddata.Append("retrun data;");
+            //}
+            //else
+            //{
+            //    cmddata.Append(".Select();");
+            //    cmddata.AppendLine();
+            //    cmddata.AppendLine();
+            //    cmddata.Append("retrun data;");
+            //}
+            #endregion
+            
             cmdData = cmddata.ToString();
         }
         #endregion region
