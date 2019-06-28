@@ -512,12 +512,12 @@ namespace CMDTool
                     cmddata.AppendLine();
                     for (int j = 0 ;j < cLeft.Count; j++)
                     {
-                        if (cLeft[j].Contains("_"))
+                        if (!cLeft[j].Contains("Col"))
                         {
                             cLeft[j] = ConvertString.UnderLine(cLeft[j]);
                             cLeft[j] = cLeft[j].Insert(0, "Col");
                         }
-                        if (cRight[j].Contains("_"))
+                        if (!cRight[j].Contains("Col"))
                         {
                             cRight[j] = ConvertString.UnderLine(cRight[j]);
                             cRight[j] = cRight[j].Insert(0, "Col");
@@ -527,7 +527,7 @@ namespace CMDTool
                         cmddata.Append(".");
                         cmddata.Append(cRight[j]);
                         cmddata.Append(" == ");
-                        cmddata.Append(cmdList[i - 1].column);
+                        cmddata.Append(ConvertString.UnderLine(COLUMN_1).Insert(0, "cmd"));
                         cmddata.Append(".");
                         cmddata.Append(cLeft[j]);
                         cmddata.Append(",");
@@ -555,6 +555,7 @@ namespace CMDTool
 
             #region 主表Where
             cmddata.Append(".Where(");
+            cmddata.AppendLine();
             if (!string.IsNullOrEmpty(CONNECTION_1))
             {
                 List<string> mainConnection = CONNECTION_1.Split(',').ToList();
@@ -563,7 +564,7 @@ namespace CMDTool
                     if (mainConnection[k].Contains("Col"))
                     {
                         cmddata.Append("\t");
-                        cmddata.Append(COLUMN_1);
+                        cmddata.Append(ConvertString.UnderLine(COLUMN_1).Insert(0, "cmd"));
                         cmddata.Append(".");
                         cmddata.Append(mainConnection[k]);
                         cmddata.Append(" == ");
@@ -588,7 +589,7 @@ namespace CMDTool
                         string connection = ConvertString.UnderLine(mainConnection[k]);
 
                         cmddata.Append("\t");
-                        cmddata.Append(COLUMN_1);
+                        cmddata.Append(ConvertString.UnderLine(COLUMN_1).Insert(0, "cmd"));
                         cmddata.Append(".");
                         cmddata.Append(connection.Insert(0,"Col"));
                         cmddata.Append(" == ");
@@ -600,15 +601,15 @@ namespace CMDTool
             }
             #region 填写orgid,enterpriseId,state
             cmddata.Append("\t");
-            cmddata.Append(COLUMN_1);
+            cmddata.Append(ConvertString.UnderLine(COLUMN_1).Insert(0, "cmd"));
             cmddata.Append(".ColOrgId == OrgId,");
             cmddata.AppendLine();
             cmddata.Append("\t");
-            cmddata.Append(COLUMN_1);
+            cmddata.Append(ConvertString.UnderLine(COLUMN_1).Insert(0, "cmd"));
             cmddata.Append(".ColEnterpriseId == EnterpriseId,");
             cmddata.AppendLine();
             cmddata.Append("\t");
-            cmddata.Append(COLUMN_1);
+            cmddata.Append(ConvertString.UnderLine(COLUMN_1).Insert(0, "cmd"));
             cmddata.Append(".ColState == \"A\")");
             cmddata.AppendLine();
             #endregion
@@ -656,6 +657,10 @@ namespace CMDTool
                     else if (properties[i].Type == "datetime")
                     {
                         connectionData.Append("DateTime? ");
+                    }
+                    else if (properties[i].Type == "decimal")
+                    {
+                        connectionData.Append("decimal? ");
                     }
                     else
                     {
