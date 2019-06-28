@@ -555,7 +555,7 @@ namespace CMDTool
 
             #region 主表Where
             cmddata.Append(".Where(");
-            cmddata.AppendLine();
+            //cmddata.AppendLine();
             if (!string.IsNullOrEmpty(CONNECTION_1))
             {
                 List<string> mainConnection = CONNECTION_1.Split(',').ToList();
