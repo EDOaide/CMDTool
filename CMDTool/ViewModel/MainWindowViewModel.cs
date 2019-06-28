@@ -698,7 +698,7 @@ namespace CMDTool
                 }
                 cmddata.Append(");");
                 cmddata.AppendLine();
-                cmddata.Append("retrun new");
+                cmddata.Append("return new");
                 cmddata.AppendLine();
                 cmddata.Append("{");
                 cmddata.AppendLine();
@@ -731,14 +731,14 @@ namespace CMDTool
                 cmddata.Append(");");
                 cmddata.AppendLine();
                 cmddata.AppendLine();
-                cmddata.Append("retrun data;");
+                cmddata.Append("return data;");
             }
 
             //if (isList && isPaging)
             //{
             //    cmddata.Append(".SelectM(start, length, out totalRecord);");
             //    cmddata.AppendLine();
-            //    cmddata.Append("retrun new");
+            //    cmddata.Append("return new");
             //    cmddata.AppendLine();
             //    cmddata.Append("{");
             //    cmddata.AppendLine();
@@ -755,20 +755,20 @@ namespace CMDTool
             //    cmddata.Append(".SelectM();");
             //    cmddata.AppendLine();
             //    cmddata.AppendLine();
-            //    cmddata.Append("retrun data;");
+            //    cmddata.Append("return data;");
             //}
             //else if (!isList && isPaging)
             //{
             //    cmddata.Append(".Select(start, length, out totalRecord);");
             //    cmddata.AppendLine();
-            //    cmddata.Append("retrun data;");
+            //    cmddata.Append("return data;");
             //}
             //else
             //{
             //    cmddata.Append(".Select();");
             //    cmddata.AppendLine();
             //    cmddata.AppendLine();
-            //    cmddata.Append("retrun data;");
+            //    cmddata.Append("return data;");
             //}
             #endregion
             
