@@ -18,6 +18,7 @@ namespace CMDTool.Model
     {
         public string Name;
         public string Type;
+        public string tableName;
     }
 
     public class DatabaseCommon
@@ -43,6 +44,7 @@ namespace CMDTool.Model
                         Field field;
                         field.Name = dr["column_name"].ToString();
                         field.Type = dr["data_type"].ToString();
+                        field.tableName = tableName;
                         _Fields.Add(field);
                     }
                 }

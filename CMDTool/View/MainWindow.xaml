@@ -166,6 +166,7 @@
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
             
             <CheckBox
@@ -205,6 +206,14 @@
                 HorizontalAlignment="Right"
                 Content="生成"
                 Command="{Binding cmdGenerate}"/>
+            <Button
+                Grid.Row="0"
+                Grid.Column="5"
+                Margin="1"             
+                Width="100"
+                HorizontalAlignment="Right"
+                Content="清空"
+                Command="{Binding cmdClear}"/>
         </Grid>
         
         <Grid Grid.Row="2">

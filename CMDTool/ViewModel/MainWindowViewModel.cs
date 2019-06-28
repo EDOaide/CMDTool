@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Configuration;
 
 namespace CMDTool
 {
@@ -21,7 +22,12 @@ namespace CMDTool
 
         public MainWindowViewModel()
         {
-            this.cmdGenerate = new SimpleCommand(onExecuteMethod, onCanExecuteMethod);
+            this.cmdGenerate = new SimpleCommand(onExecuteGenerateMethod, onCanExecuteMethod);
+            this.cmdClear = new SimpleCommand(onExecuteClearMethod, onCanExecuteMethod);
+
+            #region 读取配置信息
+            connectionString = ConfigurationManager.AppSettings["connectionString"];
+            #endregion
         }
         #region 属性
 
@@ -341,6 +347,7 @@ namespace CMDTool
 
         #region 方法
         public ICommand cmdGenerate { get; set; }
+        public ICommand cmdClear { get; set; }
         //private ICommand _cmdBtnCreatePass;
         //public ICommand cmdBtnCreatePass
         //{
@@ -361,11 +368,12 @@ namespace CMDTool
             return !string.IsNullOrEmpty(COLUMN_1);
         }
 
-        private void onExecuteMethod(object parameter)
+        private void onExecuteGenerateMethod(object parameter)
         {
             #region 拼接字符串成List
             List<CmdModel> cmdList = new List<CmdModel>();
             StringBuilder cmddata = new StringBuilder("var ctx = ODAContext.NoTransContext;\n");
+            List<Field> properties = new List<Field>();//实体类容器
             for (int i = 1; i <= 9; i++)
             {
                 var column = GetType().GetProperty("COLUMN_" + i.ToString(), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public).GetValue(this, null);//同名不同后缀反射为对象装填入list
@@ -606,44 +614,19 @@ namespace CMDTool
             #endregion
             #endregion
 
-            #region 是否生成List，是否分页
+            #region 是否生成List，是否分页, 是否生成实体类
             if (isList)
             {
-                cmddata.Append(".SelectM(") ;
+                cmddata.Append(".SelectM") ;
             }
             else
             {
-                cmddata.Append(".Select(");
-            }
-
-            if (isPaging)
-            {
-                cmddata.Append("start, length, out totalRecord);");
-                cmddata.AppendLine();
-                cmddata.Append("retrun new");
-                cmddata.AppendLine();
-                cmddata.Append("{");
-                cmddata.AppendLine();
-                cmddata.Append("\t");
-                cmddata.Append("totalRecord");
-                cmddata.AppendLine();
-                cmddata.Append("\t");
-                cmddata.Append("data");
-                cmddata.AppendLine();
-                cmddata.Append("}");
-            }
-            else
-            {
-                cmddata.Append(");");
-                cmddata.AppendLine();
-                cmddata.AppendLine();
-                cmddata.Append("retrun data;");
+                cmddata.Append(".Select");
             }
 
             if (isConnection)
             {
                 StringBuilder connectionData = new StringBuilder();
-                List<Field> properties = new List<Field>();
                 for (int i = 0; i < cmdList.Count; i++)
                 {
                     var fileds = DatabaseCommon.GetFileds(connectionString, ConvertString.ToUnderLine(cmdList[i].column));
@@ -654,18 +637,23 @@ namespace CMDTool
                 connectionData.Append("public class ");
                 connectionData.Append(ConvertString.UnderLine(COLUMN_1).Replace("cmd", "").Replace("Cmd", ""));
                 connectionData.Append("MutiModel");
+
+                cmddata.Append("<");
+                cmddata.Append(ConvertString.UnderLine(COLUMN_1).Replace("cmd", "").Replace("Cmd", ""));
+                cmddata.Append("MutiModel>");
+
                 connectionData.AppendLine();
                 connectionData.Append("{");
                 connectionData.AppendLine();
-                for(int i = 0; i < properties.Count; i++)
+                for (int i = 0; i < properties.Count; i++)
                 {
                     connectionData.Append("\t");
                     connectionData.Append("public ");
-                    if (properties[i].Type=="char"|| properties[i].Type == "varchar")
+                    if (properties[i].Type == "char" || properties[i].Type == "varchar")
                     {
                         connectionData.Append("string ");
                     }
-                    else if(properties[i].Type == "datetime")
+                    else if (properties[i].Type == "datetime")
                     {
                         connectionData.Append("DateTime? ");
                     }
@@ -681,8 +669,65 @@ namespace CMDTool
                 connectionData.Append("}");
                 modelData = connectionData.ToString();
             }
+            cmddata.Append("(");
 
-
+            if (isPaging)
+            {
+                cmddata.Append("start, length, out totalRecord");
+                if (isConnection)
+                {
+                    cmddata.Append(",");
+                    cmddata.AppendLine();
+                    for (int i = 0; i < properties.Count; i++)
+                    {
+                        cmddata.Append("\t");
+                        cmddata.Append(ConvertString.UnderLine(properties[i].tableName).Insert(0, "cmd"));
+                        cmddata.Append(".");
+                        cmddata.Append(ConvertString.UnderLine(properties[i].tableName).Insert(0, "Col"));
+                        if (i != properties.Count - 1)
+                        {
+                            cmddata.Append(",");
+                        }
+                        cmddata.AppendLine();
+                    }
+                }
+                cmddata.Append(");");
+                cmddata.AppendLine();
+                cmddata.Append("retrun new");
+                cmddata.AppendLine();
+                cmddata.Append("{");
+                cmddata.AppendLine();
+                cmddata.Append("\t");
+                cmddata.Append("totalRecord");
+                cmddata.AppendLine();
+                cmddata.Append("\t");
+                cmddata.Append("data");
+                cmddata.AppendLine();
+                cmddata.Append("}");
+            }
+            else
+            {
+                if (isConnection)
+                {
+                    cmddata.AppendLine();
+                    for (int i = 0; i < properties.Count; i++)
+                    {
+                        cmddata.Append("\t");
+                        cmddata.Append(ConvertString.UnderLine(properties[i].tableName).Insert(0, "cmd"));
+                        cmddata.Append(".");
+                        cmddata.Append(ConvertString.UnderLine(properties[i].Name).Insert(0, "Col"));
+                        if (i != properties.Count - 1)
+                        {
+                            cmddata.Append(",");
+                        }
+                        cmddata.AppendLine();
+                    }
+                }
+                cmddata.Append(");");
+                cmddata.AppendLine();
+                cmddata.AppendLine();
+                cmddata.Append("retrun data;");
+            }
 
             //if (isList && isPaging)
             //{
@@ -723,6 +768,35 @@ namespace CMDTool
             #endregion
             
             cmdData = cmddata.ToString();
+
+            #region 保存配置信息
+            Configuration cfa = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            cfa.AppSettings.Settings["connectionString"].Value = connectionString;
+            cfa.Save();
+            #endregion
+        }
+
+        private void onExecuteClearMethod(object parameter)
+        {
+            COLUMN_1 = string.Empty;
+            COLUMN_2 = string.Empty;
+            COLUMN_3 = string.Empty;
+            COLUMN_4 = string.Empty;
+            COLUMN_5 = string.Empty;
+            COLUMN_6 = string.Empty;
+            COLUMN_7 = string.Empty;
+            COLUMN_8 = string.Empty;
+            COLUMN_9 = string.Empty;
+
+            CONNECTION_1 = string.Empty;
+            CONNECTION_2 = string.Empty;
+            CONNECTION_3 = string.Empty;
+            CONNECTION_4 = string.Empty;
+            CONNECTION_5 = string.Empty;
+            CONNECTION_6 = string.Empty;
+            CONNECTION_7 = string.Empty;
+            CONNECTION_8 = string.Empty;
+            CONNECTION_9 = string.Empty;
         }
         #endregion region
     }
